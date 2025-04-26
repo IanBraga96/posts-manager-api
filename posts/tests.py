@@ -44,3 +44,23 @@ class PostAPITest(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         mock_get.assert_called_once_with("https://dev.codeleap.co.uk/careers/")
+
+    @patch("posts.views.requests.post")
+    def test_create_post(self, mock_post):
+        print("\nTesting post creation...")
+        mock_response = MagicMock()
+        mock_response.status_code = 201
+        mock_response.json.return_value = self.mock_response_data
+        mock_post.return_value = mock_response
+
+        url = reverse("post-list-create")
+        print(f"Sent data: {self.mock_post_data}")
+        response = self.client.post(url, self.mock_post_data, format="json")
+
+        print(f"Received status code: {response.status_code}")
+        print(f"Received response: {response.data}")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        mock_post.assert_called_once_with(
+            "https://dev.codeleap.co.uk/careers/", json=self.mock_post_data
+        )
