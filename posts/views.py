@@ -5,7 +5,7 @@ import requests
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import PostCreateSerializer
+from .serializers import PostCreateSerializer, PostUpdateSerializer
 
 BASE_URL = "https://dev.codeleap.co.uk/careers/"
 
@@ -48,7 +48,7 @@ class PostListCreateAPIView(APIView):
 
 class PostDetailAPIView(APIView):
     """
-    API view to retrieve a single post by ID
+    API view to retrieve and update a single post by ID
     """
 
     def get_url(self, pk):
@@ -67,3 +67,25 @@ class PostDetailAPIView(APIView):
             return Response(
                 {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+    def patch(self, request, pk):
+        serializer = PostUpdateSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                response = requests.patch(
+                    self.get_url(pk), json=serializer.validated_data
+                )
+                if response.status_code in [200, 204]:
+                    return Response(
+                        response.json() if response.content else {},
+                        status=response.status_code,
+                    )
+                return Response(
+                    {"detail": "Failed to update post on external API"},
+                    status=response.status_code,
+                )
+            except Exception as e:
+                return Response(
+                    {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
