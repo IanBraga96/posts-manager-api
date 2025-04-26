@@ -86,3 +86,16 @@ class PostAPITest(TestCase):
         mock_patch.assert_called_once_with(
             "https://dev.codeleap.co.uk/careers/1/", json=update_data
         )
+
+    @patch("posts.views.requests.delete")
+    def test_delete_post(self, mock_delete):
+        print("\nTesting post deletion...")
+        mock_response = MagicMock()
+        mock_response.status_code = 204
+        mock_delete.return_value = mock_response
+
+        url = reverse("post-detail", kwargs={"pk": 1})
+        response = self.client.delete(url)
+
+        print(f"Received status code: {response.status_code}")
+        mock_delete.assert_called_once_with("https://dev.codeleap.co.uk/careers/1/")
