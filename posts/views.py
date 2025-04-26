@@ -44,3 +44,26 @@ class PostListCreateAPIView(APIView):
                     {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PostDetailAPIView(APIView):
+    """
+    API view to retrieve a single post by ID
+    """
+
+    def get_url(self, pk):
+        return f"{BASE_URL}{pk}/"
+
+    def get(self, request, pk):
+        try:
+            response = requests.get(self.get_url(pk))
+            if response.status_code == 200:
+                return Response(response.json(), status=status.HTTP_200_OK)
+            return Response(
+                {"detail": "Post not found or error fetching from external API"},
+                status=response.status_code,
+            )
+        except Exception as e:
+            return Response(
+                {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
