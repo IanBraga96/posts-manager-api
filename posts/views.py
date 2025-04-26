@@ -48,7 +48,7 @@ class PostListCreateAPIView(APIView):
 
 class PostDetailAPIView(APIView):
     """
-    API view to retrieve and update a single post by ID
+    API view to retrieve update and delete a single post by ID
     """
 
     def get_url(self, pk):
@@ -89,3 +89,17 @@ class PostDetailAPIView(APIView):
                     {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk):
+        try:
+            response = requests.delete(self.get_url(pk))
+            if response.status_code in [200, 204]:
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                {"detail": "Failed to delete post on external API"},
+                status=response.status_code,
+            )
+        except Exception as e:
+            return Response(
+                {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
