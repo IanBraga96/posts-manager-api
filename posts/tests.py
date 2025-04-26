@@ -64,3 +64,25 @@ class PostAPITest(TestCase):
         mock_post.assert_called_once_with(
             "https://dev.codeleap.co.uk/careers/", json=self.mock_post_data
         )
+
+    @patch("posts.views.requests.patch")
+    def test_update_post(self, mock_patch):
+        print("\nTesting post update...")
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = self.mock_response_data
+        mock_response.content = True
+        mock_patch.return_value = mock_response
+
+        update_data = {"title": "Updated Title", "content": "Updated Content"}
+        url = reverse("post-detail", kwargs={"pk": 1})
+        print(f"Update data: {update_data}")
+        response = self.client.patch(url, update_data, format="json")
+
+        print(f"Received status code: {response.status_code}")
+        print(f"Received response: {response.data}")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        mock_patch.assert_called_once_with(
+            "https://dev.codeleap.co.uk/careers/1/", json=update_data
+        )
