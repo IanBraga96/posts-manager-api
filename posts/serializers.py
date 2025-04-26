@@ -23,3 +23,7 @@ class PostCreateSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=100)
     title = serializers.CharField(max_length=200)
     content = serializers.CharField()
+
+class PostUpdateSerializer(serializers.Serializer):
+    title = serializers.CharField(max_length=200)
+    content = serializers.CharField()
