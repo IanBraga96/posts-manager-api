@@ -5,12 +5,13 @@ import requests
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from .serializers import PostCreateSerializer
 
 BASE_URL = "https://dev.codeleap.co.uk/careers/"
 
 class PostListCreateAPIView(APIView):
     """
-    API view to list all posts
+    API view to list all posts and create a new post
     """
 
     def get(self, request):
@@ -26,3 +27,20 @@ class PostListCreateAPIView(APIView):
             return Response(
                 {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+    def post(self, request):
+        serializer = PostCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                response = requests.post(BASE_URL, json=serializer.validated_data)
+                if response.status_code in [201, 200]:
+                    return Response(response.json(), status=response.status_code)
+                return Response(
+                    {"detail": "Failed to create post on external API"},
+                    status=response.status_code,
+                )
+            except Exception as e:
+                return Response(
+                    {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

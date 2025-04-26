@@ -18,3 +18,8 @@ class PostSerializer(serializers.Serializer):
             "content": instance.content,
             "created_datetime": instance.created_datetime,
         }
+    
+class PostCreateSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=100)
+    title = serializers.CharField(max_length=200)
+    content = serializers.CharField()
