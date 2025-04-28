@@ -17,3 +17,23 @@ class Post:
         self.title = title
         self.content = content
         self.created_datetime = created_datetime
+
+
+class PostLike(models.Model):
+    post_id = models.IntegerField()
+    username = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ["post_id", "username"]
+
+
+class PostComment(models.Model):
+    post_id = models.IntegerField()
+    username = models.CharField(max_length=100)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    mentioned_users = models.JSONField(default=list)
+
+    class Meta:
+        ordering = ["-created_at"]
