@@ -10,7 +10,7 @@ class PostLikeSerializer(serializers.ModelSerializer):
 class PostCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostComment
-        fields = ['id', 'post_id', 'username', 'content', 'created_at']
+        fields = ['id', 'post_id', 'username', 'content', 'created_at', 'mentioned_users']
 
 class PostSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)

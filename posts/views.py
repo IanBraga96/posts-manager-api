@@ -9,6 +9,7 @@ from rest_framework.decorators import api_view
 from .models import PostLike
 from .serializers import PostSerializer, PostCreateSerializer, PostUpdateSerializer, PostLikeSerializer, PostCommentSerializer
 from .models import PostComment
+from .utils import extract_mentions
 
 BASE_URL = "https://dev.codeleap.co.uk/careers/"
 
@@ -171,10 +172,13 @@ class PostCommentAPIView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
+            mentioned_users = extract_mentions(content)
+
             comment = PostComment.objects.create(
                 post_id=pk,
                 username=username,
-                content=content
+                content=content,
+                mentioned_users=mentioned_users
             )
 
             serializer = PostCommentSerializer(comment)
@@ -212,7 +216,10 @@ class PostCommentAPIView(APIView):
                     status=status.HTTP_403_FORBIDDEN
                 )
 
+            mentioned_users = extract_mentions(content)
+            
             comment.content = content
+            comment.mentioned_users = mentioned_users
             comment.save()
 
             serializer = PostCommentSerializer(comment)
