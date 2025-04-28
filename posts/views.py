@@ -5,20 +5,29 @@ import requests
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import PostCreateSerializer, PostUpdateSerializer
+from rest_framework.decorators import api_view
+from .models import PostLike
+from .serializers import PostSerializer, PostCreateSerializer, PostUpdateSerializer, PostLikeSerializer
 
 BASE_URL = "https://dev.codeleap.co.uk/careers/"
 
 class PostListCreateAPIView(APIView):
-    """
-    API view to list all posts and create a new post
-    """
-
     def get(self, request):
         try:
             response = requests.get(BASE_URL)
             if response.status_code == 200:
-                return Response(response.json(), status=status.HTTP_200_OK)
+                data = response.json()
+                
+                serializer = PostSerializer(
+                    data['results'], 
+                    many=True, 
+                    context={'request': request}
+                )
+                
+                return Response({
+                    'results': serializer.data
+                }, status=status.HTTP_200_OK)
+                
             return Response(
                 {"detail": "Failed to fetch posts from external API"},
                 status=response.status_code,
@@ -47,10 +56,6 @@ class PostListCreateAPIView(APIView):
 
 
 class PostDetailAPIView(APIView):
-    """
-    API view to retrieve update and delete a single post by ID
-    """
-
     def get_url(self, pk):
         return f"{BASE_URL}{pk}/"
 
@@ -58,7 +63,12 @@ class PostDetailAPIView(APIView):
         try:
             response = requests.get(self.get_url(pk))
             if response.status_code == 200:
-                return Response(response.json(), status=status.HTTP_200_OK)
+                serializer = PostSerializer(
+                    response.json(),
+                    context={'request': request}
+                )
+                return Response(serializer.data, status=status.HTTP_200_OK)
+                
             return Response(
                 {"detail": "Post not found or error fetching from external API"},
                 status=response.status_code,
@@ -102,4 +112,36 @@ class PostDetailAPIView(APIView):
         except Exception as e:
             return Response(
                 {"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class PostLikeAPIView(APIView):
+    def post(self, request, pk):
+        try:
+            username = request.data.get('username')
+            if not username:
+                return Response(
+                    {'detail': 'Username is required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            like, created = PostLike.objects.get_or_create(
+                post_id=pk,
+                username=username
+            )
+
+            if not created:
+                like.delete()
+                return Response(
+                    {'detail': 'Like removed'},
+                    status=status.HTTP_200_OK
+                )
+
+            serializer = PostLikeSerializer(like)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response(
+                {'detail': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
