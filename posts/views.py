@@ -16,17 +16,30 @@ BASE_URL = "https://dev.codeleap.co.uk/careers/"
 class PostListCreateAPIView(APIView):
     def get(self, request):
         try:
+            search_term = request.query_params.get('search', '').lower()
+            
             response = requests.get(BASE_URL)
             if response.status_code == 200:
                 data = response.json()
+                results = data['results']
+                
+                if search_term:
+                    filtered_results = []
+                    for post in results:
+                        if (search_term in post.get('username', '').lower() or
+                            search_term in post.get('title', '').lower() or
+                            search_term in post.get('content', '').lower()):
+                            filtered_results.append(post)
+                    results = filtered_results
                 
                 serializer = PostSerializer(
-                    data['results'], 
+                    results, 
                     many=True, 
                     context={'request': request}
                 )
                 
                 return Response({
+                    'count': len(results),
                     'results': serializer.data
                 }, status=status.HTTP_200_OK)
                 
