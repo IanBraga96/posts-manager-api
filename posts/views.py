@@ -7,7 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import PostLike
-from .serializers import PostSerializer, PostCreateSerializer, PostUpdateSerializer, PostLikeSerializer
+from .serializers import PostSerializer, PostCreateSerializer, PostUpdateSerializer, PostLikeSerializer, PostCommentSerializer
+from .models import PostComment
 
 BASE_URL = "https://dev.codeleap.co.uk/careers/"
 
@@ -139,6 +140,117 @@ class PostLikeAPIView(APIView):
 
             serializer = PostLikeSerializer(like)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response(
+                {'detail': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class PostCommentAPIView(APIView):
+    def get(self, request, pk):
+        try:
+            comments = PostComment.objects.filter(post_id=pk)
+            serializer = PostCommentSerializer(comments, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {'detail': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def post(self, request, pk):
+        try:
+            username = request.data.get('username')
+            content = request.data.get('content')
+            
+            if not username or not content:
+                return Response(
+                    {'detail': 'Username and content are required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            comment = PostComment.objects.create(
+                post_id=pk,
+                username=username,
+                content=content
+            )
+
+            serializer = PostCommentSerializer(comment)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response(
+                {'detail': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def patch(self, request, pk):
+        try:
+            comment_id = request.data.get('comment_id')
+            username = request.data.get('username')
+            content = request.data.get('content')
+            
+            if not comment_id or not username or not content:
+                return Response(
+                    {'detail': 'Comment ID, username and content are required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            try:
+                comment = PostComment.objects.get(id=comment_id, post_id=pk)
+            except PostComment.DoesNotExist:
+                return Response(
+                    {'detail': 'Comment not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            if comment.username != username:
+                return Response(
+                    {'detail': 'You can only edit your own comments'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            comment.content = content
+            comment.save()
+
+            serializer = PostCommentSerializer(comment)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {'detail': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+    def delete(self, request, pk):
+        try:
+            comment_id = request.data.get('comment_id')
+            username = request.data.get('username')
+            
+            if not comment_id or not username:
+                return Response(
+                    {'detail': 'Comment ID and username are required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            try:
+                comment = PostComment.objects.get(id=comment_id, post_id=pk)
+            except PostComment.DoesNotExist:
+                return Response(
+                    {'detail': 'Comment not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            if comment.username != username:
+                return Response(
+                    {'detail': 'You can only delete your own comments'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            comment.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
         except Exception as e:
             return Response(

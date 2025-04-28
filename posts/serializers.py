@@ -1,11 +1,16 @@
 from rest_framework import serializers
-from .models import PostLike
+from .models import PostLike, PostComment
 
 
 class PostLikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostLike
         fields = ['post_id', 'username', 'created_at']
+
+class PostCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostComment
+        fields = ['id', 'post_id', 'username', 'content', 'created_at']
 
 class PostSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
