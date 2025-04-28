@@ -25,7 +25,7 @@ class PostLike(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ['post_id', 'username']
+        unique_together = ["post_id", "username"]
 
 
 class PostComment(models.Model):
@@ -36,4 +36,4 @@ class PostComment(models.Model):
     mentioned_users = models.JSONField(default=list)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
