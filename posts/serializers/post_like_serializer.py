@@ -8,7 +8,7 @@ class PostLikeSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
         return {
-            'post_id': instance.post_id,
-            'username': instance.username,
-            'created_at': instance.created_at
+            "post_id": instance.post_id,
+            "username": instance.username,
+            "created_at": instance.created_at,
         }

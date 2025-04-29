@@ -12,7 +12,7 @@ class PostLikeAPIView(APIView):
             return Response({"detail": "Username is required"}, status=400)
 
         existing_like = PostLike.get(pk, username)
-        
+
         if existing_like:
             PostLike.delete(pk, username)
             return Response({"detail": "Like removed"}, status=200)

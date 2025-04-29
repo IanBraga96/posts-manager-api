@@ -39,7 +39,7 @@ class PostCommentAPIView(APIView):
         comment = PostComment.get(comment_id)
         if not comment:
             return Response({"detail": "Comment not found"}, status=404)
-        
+
         if comment.username != username:
             return Response({"detail": "Not your comment"}, status=403)
 
@@ -50,7 +50,7 @@ class PostCommentAPIView(APIView):
     def delete(self, request, pk):
         comment_id = request.data.get("comment_id")
         username = request.data.get("username")
-        
+
         if not all([comment_id, username]):
             return Response({"detail": "Missing fields"}, status=400)
 
