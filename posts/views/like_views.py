@@ -11,11 +11,12 @@ class PostLikeAPIView(APIView):
         if not username:
             return Response({"detail": "Username is required"}, status=400)
 
-        like, created = PostLike.objects.get_or_create(post_id=pk, username=username)
-
-        if not created:
-            like.delete()
+        existing_like = PostLike.get(pk, username)
+        
+        if existing_like:
+            PostLike.delete(pk, username)
             return Response({"detail": "Like removed"}, status=200)
-
-        serializer = PostLikeSerializer(like)
-        return Response(serializer.data, status=201)
+        else:
+            like = PostLike.create(pk, username)
+            serializer = PostLikeSerializer(like)
+            return Response(serializer.data, status=201)

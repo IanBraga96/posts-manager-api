@@ -8,7 +8,7 @@ from ..utils.utils import extract_mentions
 
 class PostCommentAPIView(APIView):
     def get(self, request, pk):
-        comments = PostComment.objects.filter(post_id=pk)
+        comments = PostComment.list_by_post(pk)
         serializer = PostCommentSerializer(comments, many=True)
         return Response(serializer.data)
 
@@ -19,7 +19,7 @@ class PostCommentAPIView(APIView):
             return Response({"detail": "Username and content are required"}, status=400)
 
         mentioned_users = extract_mentions(content)
-        comment = PostComment.objects.create(
+        comment = PostComment.create(
             post_id=pk,
             username=username,
             content=content,
@@ -36,32 +36,30 @@ class PostCommentAPIView(APIView):
         if not all([comment_id, username, content]):
             return Response({"detail": "Missing fields"}, status=400)
 
-        try:
-            comment = PostComment.objects.get(id=comment_id, post_id=pk)
-        except PostComment.DoesNotExist:
+        comment = PostComment.get(comment_id)
+        if not comment:
             return Response({"detail": "Comment not found"}, status=404)
-
+        
         if comment.username != username:
             return Response({"detail": "Not your comment"}, status=403)
 
-        comment.content = content
-        comment.mentioned_users = extract_mentions(content)
-        comment.save()
-        return Response(PostCommentSerializer(comment).data)
+        mentioned_users = extract_mentions(content)
+        updated_comment = comment.update(content, mentioned_users)
+        return Response(PostCommentSerializer(updated_comment).data)
 
     def delete(self, request, pk):
         comment_id = request.data.get("comment_id")
         username = request.data.get("username")
+        
         if not all([comment_id, username]):
             return Response({"detail": "Missing fields"}, status=400)
 
-        try:
-            comment = PostComment.objects.get(id=comment_id, post_id=pk)
-        except PostComment.DoesNotExist:
+        comment = PostComment.get(comment_id)
+        if not comment:
             return Response({"detail": "Comment not found"}, status=404)
 
         if comment.username != username:
             return Response({"detail": "Not your comment"}, status=403)
 
-        comment.delete()
+        PostComment.delete(comment_id)
         return Response(status=204)

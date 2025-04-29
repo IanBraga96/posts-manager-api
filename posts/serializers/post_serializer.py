@@ -33,14 +33,16 @@ class PostSerializer(serializers.Serializer):
         return data
 
     def get_likes_count(self, obj):
-        return PostLike.objects.filter(post_id=obj.get("id")).count()
+        post_id = obj.get("id")
+        likes = PostLike.list_by_post(post_id)
+        return len(likes) if likes else 0
 
     def get_is_liked(self, obj):
         request = self.context.get("request")
         if request and request.data.get("username"):
-            return PostLike.objects.filter(
-                post_id=obj.get("id"), username=request.data.get("username")
-            ).exists()
+            post_id = obj.get("id")
+            username = request.data.get("username")
+            return PostLike.get(post_id, username) is not None
         return False
 
 
