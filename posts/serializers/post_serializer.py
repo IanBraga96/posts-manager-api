@@ -1,24 +1,5 @@
 from rest_framework import serializers
-from .models import PostLike, PostComment
-
-
-class PostLikeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PostLike
-        fields = ["post_id", "username", "created_at"]
-
-
-class PostCommentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PostComment
-        fields = [
-            "id",
-            "post_id",
-            "username",
-            "content",
-            "created_at",
-            "mentioned_users",
-        ]
+from posts.models import PostLike
 
 
 class PostSerializer(serializers.Serializer):
@@ -46,11 +27,9 @@ class PostSerializer(serializers.Serializer):
             "title": instance.get("title"),
             "content": instance.get("content"),
             "created_datetime": instance.get("created_datetime"),
+            "likes_count": self.get_likes_count(instance),
+            "is_liked": self.get_is_liked(instance),
         }
-
-        data["likes_count"] = self.get_likes_count(instance)
-        data["is_liked"] = self.get_is_liked(instance)
-
         return data
 
     def get_likes_count(self, obj):
