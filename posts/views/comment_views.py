@@ -5,6 +5,7 @@ from ..models import PostComment
 from ..serializers.post_comment_serializer import PostCommentSerializer
 from ..utils.utils import extract_mentions
 from ..middleware.auth_middleware import firebase_auth_middleware
+from ..utils.api_utils import verify_post_exists
 
 
 class PostCommentAPIView(APIView):
@@ -16,6 +17,9 @@ class PostCommentAPIView(APIView):
 
     @firebase_auth_middleware
     def post(self, request, pk):
+        if not verify_post_exists(pk):
+            return Response({"detail": "Post not found"}, status=404)
+
         user_id = request.user_id
         content = request.data.get("content")
 
