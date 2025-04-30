@@ -9,6 +9,8 @@ click==8.1.8
 cryptography==44.0.2
 Django==5.2
 djangorestframework==3.16.0
+dnspython==2.7.0
+email_validator==2.2.0
 firebase-admin==6.8.0
 google-api-core==2.25.0rc0
 google-api-python-client==2.169.0
