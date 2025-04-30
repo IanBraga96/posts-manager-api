@@ -38,16 +38,15 @@ class PostSerializer(serializers.Serializer):
         return len(likes) if likes else 0
 
     def get_is_liked(self, obj):
-        request = self.context.get("request")
-        if request and request.data.get("username"):
+        user_id = self.context.get("user_id")
+        if user_id:
             post_id = obj.get("id")
-            username = request.data.get("username")
-            return PostLike.get(post_id, username) is not None
+            return PostLike.get(post_id, user_id) is not None
         return False
 
 
 class PostCreateSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=100)
+    username = serializers.CharField(max_length=100, required=False)
     title = serializers.CharField(max_length=200)
     content = serializers.CharField()
 
