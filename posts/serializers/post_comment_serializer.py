@@ -5,7 +5,7 @@ from posts.models import PostComment
 class PostCommentSerializer(serializers.Serializer):
     id = serializers.CharField()
     post_id = serializers.IntegerField()
-    username = serializers.CharField()
+    user_id = serializers.CharField()
     content = serializers.CharField()
     created_at = serializers.DateTimeField()
     mentioned_users = serializers.ListField(
@@ -16,7 +16,7 @@ class PostCommentSerializer(serializers.Serializer):
         return {
             "id": instance.id,
             "post_id": instance.post_id,
-            "username": instance.username,
+            "user_id": instance.user_id,
             "content": instance.content,
             "created_at": instance.created_at,
             "mentioned_users": instance.mentioned_users,

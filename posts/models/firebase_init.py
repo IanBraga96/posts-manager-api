@@ -6,7 +6,7 @@ def initialize_collections():
     """
     Initialize collections in Firebase if they don't exist
     """
-    collections = ["post_likes", "post_comments"]
+    collections = ["post_likes", "post_comments", "user"]
 
     for collection in collections:
         if not db.collection(collection).get():
