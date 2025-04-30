@@ -32,12 +32,9 @@ class PostListCreateAPIView(APIView):
                     ]
 
                 serializer = PostSerializer(
-                    results, 
-                    many=True, 
-                    context={
-                        "request": request,
-                        "user_id": request.user_id
-                    }
+                    results,
+                    many=True,
+                    context={"request": request, "user_id": request.user_id},
                 )
                 return Response({"count": len(results), "results": serializer.data})
             return Response(
@@ -51,13 +48,12 @@ class PostListCreateAPIView(APIView):
         user = User.get_by_uid(request.user_id)
         if not user:
             return Response(
-                {"detail": "User not found"}, 
-                status=status.HTTP_404_NOT_FOUND
+                {"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
         data = request.data.copy()
         data["username"] = user.name
-        
+
         serializer = PostCreateSerializer(data=data)
         if serializer.is_valid():
             try:
@@ -78,11 +74,8 @@ class PostDetailAPIView(APIView):
             response = requests.get(self.get_url(pk))
             if response.status_code == 200:
                 serializer = PostSerializer(
-                    response.json(), 
-                    context={
-                        "request": request,
-                        "user_id": request.user_id
-                    }
+                    response.json(),
+                    context={"request": request, "user_id": request.user_id},
                 )
                 return Response(serializer.data)
             return Response({"detail": "Post not found"}, status=response.status_code)

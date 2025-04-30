@@ -18,7 +18,7 @@ class PostCommentAPIView(APIView):
     def post(self, request, pk):
         user_id = request.user_id
         content = request.data.get("content")
-        
+
         if not content:
             return Response({"detail": "Content is required"}, status=400)
 
