@@ -7,11 +7,14 @@ from ..serializers.post_serializer import (
     PostCreateSerializer,
     PostUpdateSerializer,
 )
+from ..middleware.auth_middleware import firebase_auth_middleware
+
 
 BASE_URL = "https://dev.codeleap.co.uk/careers/"
 
 
 class PostListCreateAPIView(APIView):
+    @firebase_auth_middleware
     def get(self, request):
         search_term = request.query_params.get("search", "").lower()
         try:
