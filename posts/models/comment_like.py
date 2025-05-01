@@ -16,7 +16,7 @@ class CommentLike:
             {
                 "comment_id": comment_id,
                 "user_id": user_id,
-                "created_at": like.created_at
+                "created_at": like.created_at,
             }
         )
         return like
@@ -38,7 +38,11 @@ class CommentLike:
     @staticmethod
     def list_by_comment(comment_id):
         likes = []
-        docs = db.collection("comment_likes").where("comment_id", "==", comment_id).stream()
+        docs = (
+            db.collection("comment_likes")
+            .where("comment_id", "==", comment_id)
+            .stream()
+        )
 
         for doc in docs:
             data = doc.to_dict()

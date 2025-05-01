@@ -30,7 +30,7 @@ class PostListCreateAPIView(APIView):
                         or search_term in post.get("title", "").lower()
                         or search_term in post.get("content", "").lower()
                     ]
-                
+
                 # results = sorted(results, key=lambda x: x['created_datetime'], reverse=True)
 
                 serializer = PostSerializer(

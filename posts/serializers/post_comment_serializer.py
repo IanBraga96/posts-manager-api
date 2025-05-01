@@ -8,7 +8,9 @@ class PostCommentSerializer(serializers.Serializer):
     user_id = serializers.CharField()
     content = serializers.CharField()
     created_at = serializers.DateTimeField()
-    mentioned_users = serializers.ListField(child=serializers.CharField(), required=False)
+    mentioned_users = serializers.ListField(
+        child=serializers.CharField(), required=False
+    )
     likes_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
 
@@ -21,7 +23,7 @@ class PostCommentSerializer(serializers.Serializer):
             "created_at": instance.created_at,
             "mentioned_users": instance.mentioned_users,
             "likes_count": self.get_likes_count(instance),
-            "is_liked": self.get_is_liked(instance)
+            "is_liked": self.get_is_liked(instance),
         }
 
     def get_likes_count(self, obj):
