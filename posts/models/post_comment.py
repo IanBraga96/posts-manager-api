@@ -48,7 +48,12 @@ class PostComment:
     @staticmethod
     def list_by_post(post_id):
         comments = []
-        docs = db.collection("post_comments").where("post_id", "==", post_id).stream()
+        docs = (
+            db.collection("post_comments")
+            .where("post_id", "==", post_id)
+            .order_by("created_at", direction="DESCENDING")
+            .stream()
+        )
 
         for doc in docs:
             data = doc.to_dict()

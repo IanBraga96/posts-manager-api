@@ -12,7 +12,9 @@ class PostCommentAPIView(APIView):
     @firebase_auth_middleware
     def get(self, request, pk):
         comments = PostComment.list_by_post(pk)
-        serializer = PostCommentSerializer(comments, many=True)
+        serializer = PostCommentSerializer(
+            comments, many=True, context={"user_id": request.user_id}
+        )
         return Response(serializer.data)
 
     @firebase_auth_middleware
