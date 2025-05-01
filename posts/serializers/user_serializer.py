@@ -8,7 +8,7 @@ class UserSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True, min_length=6)
 
     def validate_name(self, value):
-        if ' ' in value:
+        if " " in value:
             raise serializers.ValidationError("The name cannot contain spaces")
         return value
 

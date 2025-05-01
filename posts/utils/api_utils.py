@@ -2,6 +2,7 @@ import requests
 
 BASE_URL = "https://dev.codeleap.co.uk/careers/"
 
+
 def verify_post_exists(post_id):
     try:
         response = requests.get(f"{BASE_URL}{post_id}/")
