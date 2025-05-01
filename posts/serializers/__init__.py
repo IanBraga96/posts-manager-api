@@ -6,6 +6,7 @@ from .post_serializer import (
 from .post_like_serializer import PostLikeSerializer
 from .post_comment_serializer import PostCommentSerializer
 from .user_serializer import UserSerializer
+from .comment_like_serializer import CommentLikeSerializer
 
 __all__ = [
     "PostSerializer",
@@ -14,4 +15,5 @@ __all__ = [
     "PostLikeSerializer",
     "PostCommentSerializer",
     "UserSerializer",
+    "CommentLikeSerializer",
 ]
