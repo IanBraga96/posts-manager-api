@@ -1,35 +1,45 @@
 # posts-manager-api
 
-This project is an API client developed with Django Rest Framework (DRF) to consume an external API for a technical assessment, allowing post management through RESTful endpoints.
+This project is an API client developed with Django Rest Framework (DRF) to consume an external API for a technical assessment, enabling post management through RESTful endpoints.
+A companion frontend was developed by my friend Breno to take advantage of the bonus features of this backend. You can find the frontend repository here:
+[Frontend Repository](https://github.com/breno-aredes/codeleap-project)
+
+> ⚠️ Attention: The backend is deployed and available for testing. However, in Branch: Main-2, it consumes a free third-party API that automatically goes to sleep after 15 minutes
+> of inactivity. As a result, you may experience a slight delay on the first request while the external API is being reactivated.
+
+The frontend for this project is also deployed and available at: https://codeleap-project2.vercel.app/
 
 ## About The Assessment
 
 This project was developed as part of a technical assessment with specific requirements to keep it simple and focused. The implementation intentionally avoids complex architectural
 patterns or over-engineering, as the assessment emphasized creating a straightforward API client that consumes the specified external API. The project demonstrates the ability to
-implement the core functionality while maintaining clean, readable code that meets all the specified requirements.
+implement the core functionality while maintaining clean, readable code that meets all the specified requirements. With permission from the recruiter, the project was further
+developed beyond its original scope. All extended features and improvements can be found in the **main-2** branch, which includes authentication using Firebase, additional
+endpoints (such as login, post and comment likes, comment CRUD operations), and a complete refactor of the project structure and database (migrated from SQLite to Firebase).
+
+The original scope, along with a few bonus features, remains available in the **main-1** branch for reference.
 
 **Bonus Features:**  
 In addition to the required features, some extra functionalities were implemented to enhance the project:
 
-- Ability to like posts
 - CRUD operations for comments
 - Mentioning users in comments
 - Search posts by username, title, or content
-- Unit tests for like and comment functionalities
+- Unit tests
+- Authentication via Firebase (login, registration, token validation)
+- Post likes
+- Comment likes
+- Integration with Firebase as a database
 
 ## About the Project
 
-The posts-manager-api acts as an abstraction layer for the external API, providing standardized endpoints for:
+The posts-manager-api acts as an abstraction layer for the external API, receiving standardized endpoints:
 
 - Listing posts
 - Creating new posts
 - Viewing specific posts
 - Updating existing posts
 - Deleting posts
-- **(Bonus)** Liking posts
-- **(Bonus)** Managing comments
-- **(Bonus)** Mentioning users in comments
-- **(Bonus)** Searching posts
 
 ## Technologies Used
 
@@ -37,6 +47,8 @@ The posts-manager-api acts as an abstraction layer for the external API, providi
 - Django 4.x
 - Django Rest Framework
 - Requests (for communication with the external API)
+- Firebase Authentication
+- Firebase Realtime Database
 
 ## Installation and Setup
 
@@ -44,6 +56,7 @@ The posts-manager-api acts as an abstraction layer for the external API, providi
 
 - Python 3.x installed
 - pip (Python package manager)
+- Firebase account (with a configured project and service key)
 
 ### Steps
 
@@ -86,27 +99,73 @@ The server will be running at `http://127.0.0.1:8000/`.
 ```plaintext
 posts-manager-api/
 ├── posts/                  # Main app
+│   ├── middleware
+│       └── auth_middleware.py
+│   ├── migrations
+│       └── __init__.py
+│   ├── models
+│       ├── __init__.py
+│       ├── comment_like.py
+│       ├── firebase_init.py
+│       ├── post_comment.py
+│       ├── post_like.py
+│       ├── post.py
+│       └── user.py
+│   ├── serializers
+│       ├── __init__.py
+│       ├── comment_like_serializer.py
+│       ├── post_comment_serializer.py
+│       ├── post_like_serializer.py
+│       ├── post_serializer.py
+│       └── user_serializer.py
+│   ├── tests
+│       ├── __init__.py
+│       ├── test_auth.py
+│       └── test_firebase_auth.py
+│   ├── utils
+│       ├── api_utils.py
+│       ├── firebase_utils.py
+│       └── utils.py
+│   ├── views
+│       ├── __init__.py
+│       ├── auth_views.py
+│       ├── comment_like_views.py
+│       ├── comment_views.py
+│       ├── like_views.py
+│       └── post_views.py
 │   ├── __init__.py
 │   ├── admin.py
 │   ├── apps.py
-│   ├── models.py           # Data models definition
-│   ├── serializers.py      # Data serializers
-│   ├── tests.py            # Automated tests
 │   ├── urls.py             # API URL configuration
-│   └── views.py            # API views
 │   └── utils.py            # Utility functions to assist
 ├── codeleap_careers/       # Project settings
 │   ├── __init__.py
 │   ├── asgi.py
 │   ├── settings.py         # Django settings
 │   ├── urls.py             # Project URLs
+│   ├── firebase_config.py
 │   └── wsgi.py
 ├── manage.py
 ├── requirements.txt        # Project dependencies
+├── serviceAccountKey.json
 └── README.md
 ```
 
 ## API Endpoints
+
+### Register & Login
+
+```http
+GET /api/careers/register/
+```
+
+Register user
+
+```http
+GET /api/careers/login/
+```
+
+Login user
 
 ### List All Posts
 
@@ -126,7 +185,6 @@ Request body:
 
 ```json
 {
-  "username": "string",
   "title": "string",
   "content": "string"
 }
@@ -205,7 +263,6 @@ To mention users in a comment, simply use the @username syntax within the conten
 
 ```json
 {
-  "username": "usertest",
   "content": "This is a great post! @mentioned_user, what do you think?"
 }
 ```
@@ -218,6 +275,12 @@ GET /api/careers/?search={query}
 
 Searches for posts by username, title, or content matching the given query string.
 
+### (Bonus) Like a comment
+
+```http
+POST /api/careers/comments/{comment_id}/like/
+```
+
 ## Tests
 
 The project includes unit and integration tests to verify correct endpoint functionality, including:
@@ -225,6 +288,9 @@ The project includes unit and integration tests to verify correct endpoint funct
 - Post management
 - Likes
 - Comments
+
+⚠️ Please note: These tests are fully implemented only in the main branch. The main-2 branch is still under active development and may not yet include complete test coverage for
+posts, likes, and comments.
 
 To run the tests:
 
